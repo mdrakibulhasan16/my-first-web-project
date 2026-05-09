@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'Inter', sans-serif;
+  scroll-behavior: smooth;
+}
+
+.cta-btn {
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+}
+
+.cta-btn:hover {
+  background: linear-gradient(135deg, #1e40af, #1d4ed8);
+}
+
+.wave-bg {
+  background: radial-gradient(ellipse at top, #eff6ff 0%, #ffffff 60%);
+}
