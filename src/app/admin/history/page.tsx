@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { FaArrowLeft, FaWhatsapp, FaPhone, FaClock, FaSearch } from 'react-icons/fa'
+import { getOrders } from '@/lib/storage'
 
 interface Order {
-  id: number
+  id: string
   name: string
   phone: string
   whatsapp: string
   message: string
-  status: string
+  status: 'pending' | 'contacted' | 'completed'
   created_at: string
 }
 
@@ -22,11 +23,9 @@ export default function OrderHistory() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const fetchOrders = async () => {
+  const fetchOrders = () => {
     try {
-      const res = await fetch('/api/orders')
-      if (!res.ok) throw new Error('Failed to fetch')
-      const data = await res.json()
+      const data = getOrders()
       if (Array.isArray(data)) {
         setOrders(data)
       } else {

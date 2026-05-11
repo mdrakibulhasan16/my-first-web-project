@@ -3,14 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { FaArrowLeft, FaWhatsapp, FaPhone, FaClock, FaCheck, FaHistory } from 'react-icons/fa'
+import { getOrderById, updateOrder as updateOrderStorage, deleteOrder as deleteOrderStorage } from '@/lib/storage'
 
 interface Order {
-  id: number
+  id: string
   name: string
   phone: string
   whatsapp: string
   message: string
-  status: string
+  status: 'pending' | 'contacted' | 'completed'
   created_at: string
 }
 
@@ -25,51 +26,37 @@ export default function OrderDetail() {
   useEffect(() => {
     if (!id) return
 
-    const fetchOrder = async () => {
-      try {
-        const res = await fetch(`/api/orders/${id}`)
-        if (!res.ok) throw new Error('Failed to fetch')
-        const data = await res.json()
-        if (data && typeof data === 'object') {
-          setOrder(data)
-        } else {
-          setOrder(null)
-        }
-      } catch (err) {
-        console.error('Failed to fetch order:', err)
-        setError('অর্ডার লোড করতে সমস্যা হয়েছে')
+    try {
+      const data = getOrderById(id)
+      if (data && typeof data === 'object') {
+        setOrder(data)
+      } else {
         setOrder(null)
-      } finally {
-        setLoading(false)
       }
+    } catch (err) {
+      console.error('Failed to fetch order:', err)
+      setError('অর্ডার লোড করতে সমস্যা হয়েছে')
+      setOrder(null)
+    } finally {
+      setLoading(false)
     }
-
-    fetchOrder()
   }, [id])
 
-  const updateStatus = async (status: string) => {
+  const updateStatus = (status: string) => {
     if (!order) return
     try {
-      const res = await fetch(`/api/orders/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      })
-      if (res.ok) {
-        setOrder({ ...order, status })
-      }
+      updateOrderStorage(id, { status: status as Order['status'] })
+      setOrder({ ...order, status: status as Order['status'] })
     } catch (err) {
       console.error('Failed to update:', err)
     }
   }
 
-  const deleteOrder = async () => {
+  const deleteOrder = () => {
     if (!confirm('আপনি কি এই অর্ডার মুছতে চান?')) return
     try {
-      const res = await fetch(`/api/orders/${id}`, { method: 'DELETE' })
-      if (res.ok) {
-        router.push('/admin')
-      }
+      deleteOrderStorage(id)
+      router.push('/admin')
     } catch (err) {
       console.error('Failed to delete:', err)
     }

@@ -1,16 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { FaWhatsapp, FaSearch, FaFilter, FaChevronRight, FaClock, FaCheck, FaUser, FaPhone } from 'react-icons/fa'
+import { getOrders, updateOrder as updateOrderStorage, deleteOrder as deleteOrderStorage } from '@/lib/storage'
 
 interface Order {
-  id: number
+  id: string
   name: string
   phone: string
   whatsapp: string
   message: string
-  status: string
+  status: 'pending' | 'contacted' | 'completed'
   created_at: string
 }
 
@@ -23,11 +24,9 @@ export default function AdminPanel() {
   const [showFilters, setShowFilters] = useState(false)
   const [error, setError] = useState('')
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(() => {
     try {
-      const res = await fetch('/api/orders')
-      if (!res.ok) throw new Error('Failed to fetch')
-      const data = await res.json()
+      const data = getOrders()
       if (Array.isArray(data)) {
         setOrders(data)
       } else {
@@ -40,34 +39,26 @@ export default function AdminPanel() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchOrders()
-  }, [])
+  }, [fetchOrders])
 
-  const updateStatus = async (id: number, status: string) => {
+  const updateStatus = (id: string, status: string) => {
     try {
-      const res = await fetch(`/api/orders/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
-      })
-      if (res.ok) {
-        fetchOrders()
-      }
+      updateOrderStorage(id, { status: status as Order['status'] })
+      fetchOrders()
     } catch (err) {
       console.error('Failed to update:', err)
     }
   }
 
-  const deleteOrder = async (id: number) => {
+  const deleteOrder = (id: string) => {
     if (!confirm('আপনি কি এই অর্ডার মুছতে চান?')) return
     try {
-      const res = await fetch(`/api/orders/${id}`, { method: 'DELETE' })
-      if (res.ok) {
-        fetchOrders()
-      }
+      deleteOrderStorage(id)
+      fetchOrders()
     } catch (err) {
       console.error('Failed to delete:', err)
     }

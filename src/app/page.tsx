@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FaGlobeAsia, FaWhatsapp, FaEnvelopeOpen, FaCoins, FaChevronDown, FaChevronUp, FaStore, FaExchangeAlt, FaTruck, FaPaperPlane, FaPhoneAlt } from 'react-icons/fa'
 import { FaCoins as FaCoinsAlt } from 'react-icons/fa6'
+import { addOrder } from '@/lib/storage'
 
 const whatsappLink = 'https://wa.me/8801XXXXXXXXX?text=' + encodeURIComponent(
   'হ্যালো, আপনাকে স্বাগতম! 🙏\n\nআমি আপনার পাইকারি ব্যাগ কালেকশনে আগ্রহী।\n\nআপনার সোর্সিং এবং অর্ডার সম্পর্কে আরও জানতে চাই:\n- কী ধরনের ব্যাগ দরকার?\n- কত পিস প্রয়োজন?\n- কোনো নির্দিষ্ট ডিজাইন আছে?\n\nঅনুগ্রহ করে আপনার প্রয়োজনীয়তা জানান।'
@@ -48,14 +49,16 @@ export default function Home() {
   const [formData, setFormData] = useState({ name: '', phone: '', whatsapp: '' })
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.phone && !formData.whatsapp) return
     try {
-      await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+      addOrder({
+        name: formData.name,
+        phone: formData.phone,
+        whatsapp: formData.whatsapp,
+        message: '',
+        status: 'pending',
       })
       setSubmitted(true)
     } catch (error) {
