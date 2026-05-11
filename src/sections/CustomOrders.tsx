@@ -14,7 +14,7 @@ export default function CustomOrders({ whatsappLink }: Props) {
           <br /><span className="font-semibold text-gray-800">কাস্টম অর্ডারের জন্য বেশি পরিমাণ প্রয়োজন।</span>
         </p>
         <a href={whatsappLink} className="cta-btn inline-block text-white font-bold py-4 px-10 rounded-xl text-lg">
-          <FaWhatsapp className="inline-block mr-2" /> হোয়াটসঅ্যাপে কাস্টম অর্ডার আলোচনা করুন
+          <FaWhatsapp className="inline-block mr-2" /> এখনই অর্ডার করুন
         </a>
       </div>
     </section>

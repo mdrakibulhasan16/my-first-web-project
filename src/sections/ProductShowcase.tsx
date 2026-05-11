@@ -37,7 +37,7 @@ export default function ProductShowcase({ whatsappLink }: Props) {
         </div>
         <div className="text-center mt-10">
           <a href={whatsappLink} className="cta-btn text-white font-bold py-3 px-8 rounded-xl text-lg">
-            <FaWhatsapp className="inline-block mr-2" /> উপলব্ধতা জিজ্ঞাসা করুন
+            <FaWhatsapp className="inline-block mr-2" /> বিস্তারিত জানতে যোগাযোগ করুন
           </a>
         </div>
       </div>

@@ -25,7 +25,7 @@ export default function Hero({ whatsappLink }: Props) {
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <a href={whatsappLink} className="cta-btn text-white font-bold py-4 px-10 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all">
-          <FaWhatsapp className="inline-block mr-2" /> হোয়াটসঅ্যাপে অর্ডার করুন
+          <FaWhatsapp className="inline-block mr-2" /> এখনই অর্ডার করুন
         </a>
         <a href="#contact" className="bg-white border-2 border-blue-600 text-blue-600 font-bold py-4 px-10 rounded-xl text-lg hover:bg-blue-50 transition-all">
           <FaEnvelopeOpen className="inline-block mr-2" /> প্রাইস লিস্ট পান

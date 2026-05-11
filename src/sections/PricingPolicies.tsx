@@ -1,7 +1,7 @@
 import { FaCoins } from 'react-icons/fa6'
 
 const policies = [
-  { label: "MOQ", value: "২০ পিস" },
+  { label: "সর্বনিম্ন অর্ডার", value: "২০ পিস" },
   { label: "দামের পরিসর", value: "৯০০–২,৫০০ টাকা" },
   { label: "স্টক ডেলিভারি", value: "৩ দিনের মধ্যে" },
   { label: "চায়না আমদানি", value: "১৫–২০ দিন" },
@@ -16,7 +16,7 @@ export default function PricingPolicies() {
         <div className="text-center mb-14">
           <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">প্রাইসিং ও শর্তাবলী</span>
           <h2 className="text-3xl md:text-5xl font-extrabold mt-3 text-gray-900">
-            স্বচ্ছ হোলসেল শর্তাবলী
+            পাইকারি শর্তাবলী
           </h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-5">

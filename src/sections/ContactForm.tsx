@@ -22,18 +22,19 @@ export default function ContactForm({ submitted, formData, setFormData, handleSu
         <div className="text-center mb-10">
           <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider">যোগাযোগ করুন</span>
           <h2 className="text-3xl md:text-4xl font-extrabold mt-3 text-gray-900">
-            আপনার বিবরণ দিন
+            আপনার তথ্য দিন
           </h2>
           <p className="text-gray-500 mt-2">হোয়াটসঅ্যাপে ক্যাটালগ এবং প্রাইস সহ আমরা আপনার সাথে যোগাযোগ করব।</p>
         </div>
 
         {submitted ? (
           <div className="bg-green-50 border border-green-200 rounded-2xl p-10 text-center">
-            <div className="text-5xl mb-4">🎉</div>
-            <h3 className="text-2xl font-bold text-green-700 mb-2">অনুরোধ পাওয়া গেছে!</h3>
-            <p className="text-green-600">আমরা কয়েক ঘন্টার মধ্যে হোয়াটসঅ্যাপে আপনার সাথে যোগাযোগ করব।</p>
-            <a href={whatsappLink} className="mt-6 inline-block cta-btn text-white font-bold py-3 px-8 rounded-xl">
-              <FaWhatsapp className="inline-block mr-2" /> এখনই হোয়াটসঅ্যাপে চ্যাট করুন
+            <div className="text-5xl mb-4">👋</div>
+            <h3 className="text-2xl font-bold text-green-700 mb-2">আপনাকে স্বাগতম!</h3>
+            <p className="text-green-600 mb-2">ধন্যবাদ আপনার আগ্রহের জন্য। আমরা আপনার সোর্সিং এবং অর্ডার সম্পর্কিত যেকোনো প্রশ্নে সাহায্য করতে প্রস্তুত।</p>
+            <p className="text-green-700 font-medium mb-6">অনুগ্রহ করে নিচের বাটনে ক্লিক করে আপনার প্রয়োজনীয়তা জানান — আমরা দ্রুত উত্তর দিব।</p>
+            <a href={whatsappLink} className="mt-4 inline-block cta-btn text-white font-bold py-3 px-8 rounded-xl">
+              <FaWhatsapp className="inline-block mr-2" /> হোয়াটসঅ্যাপে যোগাযোগ করুন
             </a>
           </div>
         ) : (
@@ -74,7 +75,7 @@ export default function ContactForm({ submitted, formData, setFormData, handleSu
               type="submit"
               className="w-full cta-btn text-white font-bold py-4 rounded-xl text-lg hover:opacity-90 transition"
             >
-              <FaPaperPlane className="inline-block mr-2" /> সাবমিট করুন — আমরা আপনার সাথে যোগাযোগ করব
+              <FaPaperPlane className="inline-block mr-2" /> জমা দিন
             </button>
             <p className="text-center text-xs text-gray-400">আপনার গোপনীয়তা রক্ষা করা হয়। কোনো স্প্যাম কল নেই।</p>
           </form>
