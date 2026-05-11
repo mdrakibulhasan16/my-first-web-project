@@ -114,9 +114,14 @@ export default function AdminPanel() {
             <h1 className="text-2xl font-bold">অর্ডার অ্যাডমিন প্যানেল</h1>
             <p className="text-blue-200 text-sm mt-1">ব্যাগ পাইকারি অর্ডার ম্যানেজমেন্ট সিস্টেম</p>
           </div>
-          <a href="/" className="bg-white text-blue-700 px-5 py-2 rounded-lg font-medium hover:bg-blue-50 transition flex items-center gap-2">
-            <FaWhatsapp /> ল্যান্ডিং পেজ
-          </a>
+          <div className="flex items-center gap-3">
+            <a href="/" className="bg-white text-blue-700 px-5 py-2 rounded-lg font-medium hover:bg-blue-50 transition flex items-center gap-2">
+              <FaWhatsapp /> ল্যান্ডিং পেজ
+            </a>
+            <button onClick={() => { document.cookie = 'admin_auth=; path=/; max-age=0'; router.push('/login'); }} className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg font-medium transition">
+              লগআউট
+            </button>
+          </div>
         </div>
       </header>
 
@@ -240,7 +245,7 @@ export default function AdminPanel() {
                         <option value="completed">সম্পন্ন</option>
                       </select>
                       <button
-                        onClick={() => router.push(`/dashboard/${order.id}`)}
+                        onClick={() => router.push(`/admin/${order.id}`)}
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition"
                       >
                         বিস্তারিত দেখুন <FaChevronRight />

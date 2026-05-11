@@ -37,3 +37,6 @@ coverage/
 
 # TypeScript
 *.tsbuildinfo
+.next/
+data/
+package.next.json
