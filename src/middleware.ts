@@ -2,13 +2,19 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
   const adminAuth = request.cookies.get('admin_auth')
 
-  if (!adminAuth && request.nextUrl.pathname.startsWith('/admin')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if (pathname.startsWith('/admin')) {
+    if (!adminAuth || adminAuth.value !== 'true') {
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
   }
 
-  if (adminAuth && request.nextUrl.pathname === '/login') {
+  if (pathname === '/login' && adminAuth?.value === 'true') {
     return NextResponse.redirect(new URL('/admin', request.url))
   }
 

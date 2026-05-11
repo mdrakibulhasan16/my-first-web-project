@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
-import { FaArrowLeft, FaWhatsapp, FaPhone, FaEnvelope, FaClock, FaCheck, FaHistory } from 'react-icons/fa'
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { FaArrowLeft, FaWhatsapp, FaPhone, FaClock, FaCheck, FaHistory } from 'react-icons/fa'
 
 interface Order {
   id: number
@@ -14,13 +14,15 @@ interface Order {
   created_at: string
 }
 
-export default function OrderDetail({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function OrderDetail() {
+  const params = useParams()
+  const id = params.id as string
   const router = useRouter()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!id) return
     fetch(`/api/orders/${id}`)
       .then(res => res.json())
       .then(data => setOrder(data))
