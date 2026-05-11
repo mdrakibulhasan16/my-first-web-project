@@ -15,16 +15,27 @@ export default function Login() {
     setError('')
     setLoading(true)
 
-    if (username === 'admin' && password === 'admin123') {
-      await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      })
-      router.push('/admin')
-      router.refresh()
-    } else {
-      setError('ব্যবহারকারীর নাম বা পাসওয়ার্ড ভুল হয়েছে')
+    try {
+      if (username === 'admin' && password === 'admin123') {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        })
+
+        if (res.ok) {
+          router.push('/admin')
+          router.refresh()
+        } else {
+          setError('ব্যবহারকারীর নাম বা পাসওয়ার্ড ভুল হয়েছে')
+        }
+      } else {
+        setError('ব্যবহারকারীর নাম বা পাসওয়ার্ড ভুল হয়েছে')
+      }
+    } catch (err) {
+      console.error('Login error:', err)
+      setError('সার্ভারে সমস্যা হয়েছে। আবার চেষ্টা করুন।')
+    } finally {
       setLoading(false)
     }
   }

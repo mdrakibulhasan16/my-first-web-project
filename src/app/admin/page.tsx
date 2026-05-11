@@ -21,14 +21,22 @@ export default function AdminPanel() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [showFilters, setShowFilters] = useState(false)
+  const [error, setError] = useState('')
 
   const fetchOrders = async () => {
     try {
       const res = await fetch('/api/orders')
+      if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
-      setOrders(data)
-    } catch (error) {
-      console.error('Failed to fetch orders:', error)
+      if (Array.isArray(data)) {
+        setOrders(data)
+      } else {
+        setOrders([])
+      }
+    } catch (err) {
+      console.error('Failed to fetch orders:', err)
+      setError('অর্ডার লোড করতে সমস্যা হয়েছে')
+      setOrders([])
     } finally {
       setLoading(false)
     }
@@ -40,24 +48,28 @@ export default function AdminPanel() {
 
   const updateStatus = async (id: number, status: string) => {
     try {
-      await fetch(`/api/orders/${id}`, {
+      const res = await fetch(`/api/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       })
-      fetchOrders()
-    } catch (error) {
-      console.error('Failed to update:', error)
+      if (res.ok) {
+        fetchOrders()
+      }
+    } catch (err) {
+      console.error('Failed to update:', err)
     }
   }
 
   const deleteOrder = async (id: number) => {
     if (!confirm('আপনি কি এই অর্ডার মুছতে চান?')) return
     try {
-      await fetch(`/api/orders/${id}`, { method: 'DELETE' })
-      fetchOrders()
-    } catch (error) {
-      console.error('Failed to delete:', error)
+      const res = await fetch(`/api/orders/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        fetchOrders()
+      }
+    } catch (err) {
+      console.error('Failed to delete:', err)
     }
   }
 
@@ -66,12 +78,15 @@ export default function AdminPanel() {
       await fetch('/api/auth/logout', { method: 'POST' })
       router.push('/login')
       router.refresh()
-    } catch (error) {
-      console.error('Logout failed:', error)
+    } catch (err) {
+      console.error('Logout failed:', err)
     }
   }
 
-  const filteredOrders = orders.filter(o => {
+  const safeOrders = Array.isArray(orders) ? orders : []
+
+  const filteredOrders = safeOrders.filter(o => {
+    if (!o) return false
     const matchesSearch =
       o.name?.toLowerCase().includes(search.toLowerCase()) ||
       o.phone.includes(search) ||
@@ -81,10 +96,10 @@ export default function AdminPanel() {
   })
 
   const statusCounts = {
-    all: orders.length,
-    pending: orders.filter(o => o.status === 'pending').length,
-    contacted: orders.filter(o => o.status === 'contacted').length,
-    completed: orders.filter(o => o.status === 'completed').length,
+    all: safeOrders.length,
+    pending: safeOrders.filter(o => o.status === 'pending').length,
+    contacted: safeOrders.filter(o => o.status === 'contacted').length,
+    completed: safeOrders.filter(o => o.status === 'completed').length,
   }
 
   const getStatusColor = (status: string) => {
@@ -106,6 +121,7 @@ export default function AdminPanel() {
   }
 
   const formatDate = (dateStr: string) => {
+    if (!dateStr) return ''
     const date = new Date(dateStr)
     return date.toLocaleDateString('bn-BD', {
       year: 'numeric',
@@ -136,6 +152,12 @@ export default function AdminPanel() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { key: 'all', label: 'সকল অর্ডার', color: 'from-gray-500 to-gray-600', icon: FaSearch },

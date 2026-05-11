@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { FaArrowLeft, FaWhatsapp, FaPhone, FaClock, FaFilter, FaSearch, FaCheck } from 'react-icons/fa'
+import { FaArrowLeft, FaWhatsapp, FaPhone, FaClock, FaSearch } from 'react-icons/fa'
 
 interface Order {
   id: number
@@ -20,14 +20,22 @@ export default function OrderHistory() {
   const [search, setSearch] = useState('')
   const [dateRange, setDateRange] = useState('all')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   const fetchOrders = async () => {
     try {
       const res = await fetch('/api/orders')
+      if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
-      setOrders(data)
-    } catch (error) {
-      console.error('Failed to fetch orders:', error)
+      if (Array.isArray(data)) {
+        setOrders(data)
+      } else {
+        setOrders([])
+      }
+    } catch (err) {
+      console.error('Failed to fetch orders:', err)
+      setError('অর্ডার লোড করতে সমস্যা হয়েছে')
+      setOrders([])
     } finally {
       setLoading(false)
     }
@@ -37,14 +45,17 @@ export default function OrderHistory() {
     fetchOrders()
   }, [])
 
-  const filteredOrders = orders.filter(o => {
+  const safeOrders = Array.isArray(orders) ? orders : []
+
+  const filteredOrders = safeOrders.filter(o => {
+    if (!o) return false
     const matchesSearch =
       o.name?.toLowerCase().includes(search.toLowerCase()) ||
       o.phone.includes(search) ||
       o.whatsapp.includes(search)
 
     let matchesDate = true
-    if (dateRange !== 'all') {
+    if (dateRange !== 'all' && o.created_at) {
       const orderDate = new Date(o.created_at)
       const now = new Date()
       if (dateRange === 'today') {
@@ -80,6 +91,7 @@ export default function OrderHistory() {
   }
 
   const formatDate = (dateStr: string) => {
+    if (!dateStr) return ''
     const date = new Date(dateStr)
     return date.toLocaleDateString('bn-BD', {
       year: 'numeric',
@@ -91,15 +103,11 @@ export default function OrderHistory() {
   }
 
   const stats = {
-    total: orders.length,
-    pending: orders.filter(o => o.status === 'pending').length,
-    contacted: orders.filter(o => o.status === 'contacted').length,
-    completed: orders.filter(o => o.status === 'completed').length,
-    completionRate: orders.length > 0 ? Math.round((statusCounts('completed') / orders.length) * 100) : 0
-  }
-
-  function statusCounts(status: string) {
-    return orders.filter(o => o.status === status).length
+    total: safeOrders.length,
+    pending: safeOrders.filter(o => o.status === 'pending').length,
+    contacted: safeOrders.filter(o => o.status === 'contacted').length,
+    completed: safeOrders.filter(o => o.status === 'completed').length,
+    completionRate: safeOrders.length > 0 ? Math.round((safeOrders.filter(o => o.status === 'completed').length / safeOrders.length) * 100) : 0
   }
 
   return (
@@ -115,6 +123,12 @@ export default function OrderHistory() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-center">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-xl p-5 shadow-sm">
             <p className="text-sm text-gray-500">মোট অর্ডার</p>

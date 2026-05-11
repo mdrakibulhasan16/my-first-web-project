@@ -16,44 +16,67 @@ interface Order {
 
 export default function OrderDetail() {
   const params = useParams()
-  const id = params.id as string
+  const id = params?.id as string
   const router = useRouter()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!id) return
-    fetch(`/api/orders/${id}`)
-      .then(res => res.json())
-      .then(data => setOrder(data))
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false))
+
+    const fetchOrder = async () => {
+      try {
+        const res = await fetch(`/api/orders/${id}`)
+        if (!res.ok) throw new Error('Failed to fetch')
+        const data = await res.json()
+        if (data && typeof data === 'object') {
+          setOrder(data)
+        } else {
+          setOrder(null)
+        }
+      } catch (err) {
+        console.error('Failed to fetch order:', err)
+        setError('অর্ডার লোড করতে সমস্যা হয়েছে')
+        setOrder(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOrder()
   }, [id])
 
   const updateStatus = async (status: string) => {
+    if (!order) return
     try {
-      await fetch(`/api/orders/${id}`, {
+      const res = await fetch(`/api/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       })
-      setOrder({ ...order!, status })
-    } catch (error) {
-      console.error('Failed to update:', error)
+      if (res.ok) {
+        setOrder({ ...order, status })
+      }
+    } catch (err) {
+      console.error('Failed to update:', err)
     }
   }
 
   const deleteOrder = async () => {
     if (!confirm('আপনি কি এই অর্ডার মুছতে চান?')) return
     try {
-      await fetch(`/api/orders/${id}`, { method: 'DELETE' })
-      router.push('/admin')
-    } catch (error) {
-      console.error('Failed to delete:', error)
+      const res = await fetch(`/api/orders/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        router.push('/admin')
+      }
+    } catch (err) {
+      console.error('Failed to delete:', err)
     }
   }
 
   const formatDate = (dateStr: string) => {
+    if (!dateStr) return ''
     const date = new Date(dateStr)
     return date.toLocaleDateString('bn-BD', {
       weekday: 'long',
@@ -83,8 +106,6 @@ export default function OrderDetail() {
     }
   }
 
-  const whatsappLink = order ? `https://wa.me/${order.whatsapp.replace(/\D/g, '')}` : '#'
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -96,12 +117,12 @@ export default function OrderDetail() {
     )
   }
 
-  if (!order) {
+  if (error || !order) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-4xl mb-4">❌</p>
-          <p className="text-xl font-medium text-gray-700">অর্ডার পাওয়া যায়নি</p>
+          <p className="text-xl font-medium text-gray-700">{error || 'অর্ডার পাওয়া যায়নি'}</p>
           <button onClick={() => router.push('/admin')} className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
             ফিরে যান
           </button>
