@@ -9,18 +9,13 @@ export function middleware(request: NextRequest) {
   if (pathname.startsWith('/admin')) {
     if (!adminAuth || adminAuth.value !== 'true') {
       const loginUrl = new URL('/login', request.url)
-      loginUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(loginUrl)
     }
-  }
-
-  if (pathname === '/login' && adminAuth?.value === 'true') {
-    return NextResponse.redirect(new URL('/admin', request.url))
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/login'],
+  matcher: ['/admin/:path*'],
 }

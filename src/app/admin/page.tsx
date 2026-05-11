@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { FaWhatsapp, FaSearch, FaFilter, FaChevronRight, FaClock, FaCheck, FaUser, FaPhone, FaEnvelope } from 'react-icons/fa'
+import { FaWhatsapp, FaSearch, FaFilter, FaChevronRight, FaClock, FaCheck, FaUser, FaPhone } from 'react-icons/fa'
 
 interface Order {
   id: number
@@ -58,6 +58,16 @@ export default function AdminPanel() {
       fetchOrders()
     } catch (error) {
       console.error('Failed to delete:', error)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      router.push('/login')
+      router.refresh()
+    } catch (error) {
+      console.error('Logout failed:', error)
     }
   }
 
@@ -118,7 +128,7 @@ export default function AdminPanel() {
             <a href="/" className="bg-white text-blue-700 px-5 py-2 rounded-lg font-medium hover:bg-blue-50 transition flex items-center gap-2">
               <FaWhatsapp /> ল্যান্ডিং পেজ
             </a>
-            <button onClick={() => { document.cookie = 'admin_auth=; path=/; max-age=0'; router.push('/login'); }} className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg font-medium transition">
+            <button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg font-medium transition">
               লগআউট
             </button>
           </div>
@@ -126,7 +136,7 @@ export default function AdminPanel() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { key: 'all', label: 'সকল অর্ডার', color: 'from-gray-500 to-gray-600', icon: FaSearch },
             { key: 'pending', label: 'অপেক্ষমাণ', color: 'from-yellow-500 to-yellow-600', icon: FaClock },

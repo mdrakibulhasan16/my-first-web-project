@@ -16,8 +16,13 @@ export default function Login() {
     setLoading(true)
 
     if (username === 'admin' && password === 'admin123') {
-      document.cookie = 'admin_auth=true; path=/; max-age=86400'
+      await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      })
       router.push('/admin')
+      router.refresh()
     } else {
       setError('ব্যবহারকারীর নাম বা পাসওয়ার্ড ভুল হয়েছে')
       setLoading(false)
