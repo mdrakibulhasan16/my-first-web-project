@@ -4,9 +4,14 @@ import { useState } from 'react'
 import { FaGlobeAsia, FaWhatsapp, FaEnvelopeOpen, FaCoins, FaChevronDown, FaChevronUp, FaStore, FaExchangeAlt, FaTruck, FaPaperPlane, FaPhoneAlt } from 'react-icons/fa'
 import { FaCoins as FaCoinsAlt } from 'react-icons/fa6'
 
-const whatsappLink = 'https://wa.me/8801XXXXXXXXX?text=' + encodeURIComponent(
-  'হ্যালো, আপনাকে স্বাগতম! 🙏\n\nআমি আপনার পাইকারি ব্যাগ কালেকশনে আগ্রহী।\n\nআপনার সোর্সিং এবং অর্ডার সম্পর্কে আরও জানতে চাই:\n- কী ধরনের ব্যাগ দরকার?\n- কত পিস প্রয়োজন?\n- কোনো নির্দিষ্ট ডিজাইন আছে?\n\nঅনুগ্রহ করে আপনার প্রয়োজনীয়তা জানান।'
-)
+const BUSINESS_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '8801XXXXXXXXX'
+
+function getWhatsAppLink(customWhatsapp: string, customerName: string) {
+  const message = `হ্যালো, আমি ${customerName || 'একজন গ্রাহক'}।\n\nআমি আপনার পাইকারি ব্যাগ কালেকশনে আগ্রহী।\n\nআমার তথ্য:\n- নাম: ${customerName || 'প্রদান করা হয়নি'}\n- হোয়াটসঅ্যাপ: ${customWhatsapp}\n\nঅনুগ্রহ করে আপনার ক্যাটালগ পাঠান।`
+  return `https://wa.me/${BUSINESS_WHATSAPP.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`
+}
+
+const defaultWhatsAppLink = `https://wa.me/${BUSINESS_WHATSAPP.replace(/\D/g, '')}?text=${encodeURIComponent('হ্যালো, আমি আপনার পাইকারি ব্যাগ কালেকশনে আগ্রহী। অনুগ্রহ করে ক্যাটালগ পাঠান।')}`
 
 const products = [
   { name: "মহিলাদের হ্যান্ডব্যাগ", img: "/photos/WhatsApp Image 2026-05-07 at 8.37.49 PM.jpeg", desc: "প্রতি সিজনে আপডেট হওয়া ট্রেন্ডি, সুন্দর ডিজাইন" },
@@ -50,15 +55,21 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.phone && !formData.whatsapp) return
+
     try {
-      await fetch('/api/orders', {
+      const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       })
+
+      if (!res.ok) throw new Error('Failed to save order')
+
+      const whatsappLink = getWhatsAppLink(formData.whatsapp, formData.name)
       window.location.href = whatsappLink
     } catch (error) {
       console.error('Failed to submit:', error)
+      alert('অর্ডার সেভ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।')
     }
   }
 
@@ -78,7 +89,7 @@ export default function Home() {
         </p>
         <p className="text-base text-gray-500 mb-10">বাংলাদেশের ছোট ব্যবসায়ীদের জন্য আদর্শ</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href={whatsappLink} className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-xl text-lg shadow-lg transition-all">
+          <a href={defaultWhatsAppLink} className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-10 rounded-xl text-lg shadow-lg transition-all">
             <FaWhatsapp className="inline-block mr-2" /> এখনই অর্ডার করুন
           </a>
           <a href="#contact" className="bg-white border-2 border-blue-600 text-blue-600 font-bold py-4 px-10 rounded-xl text-lg hover:bg-blue-50 transition-all">
@@ -157,7 +168,7 @@ export default function Home() {
             ))}
           </div>
           <div className="text-center mt-10">
-            <a href={whatsappLink} className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-xl text-lg inline-block">
+            <a href={defaultWhatsAppLink} className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-xl text-lg inline-block">
               <FaWhatsapp className="inline-block mr-2" /> বিস্তারিত জানতে যোগাযোগ করুন
             </a>
           </div>
@@ -225,7 +236,7 @@ export default function Home() {
             আমাদের ক্যাটালগে না থাকলেও যেকোনো প্রোডাক্ট সোর্স করতে পারি — চায়না থেকে আপনার অনুরোধে।<br />
             <span className="font-semibold text-gray-800">কাস্টম অর্ডারের জন্য বেশি পরিমাণ প্রয়োজন।</span>
           </p>
-          <a href={whatsappLink} className="bg-green-500 hover:bg-green-600 inline-block text-white font-bold py-4 px-10 rounded-xl text-lg">
+          <a href={defaultWhatsAppLink} className="bg-green-500 hover:bg-green-600 inline-block text-white font-bold py-4 px-10 rounded-xl text-lg">
             <FaWhatsapp className="inline-block mr-2" /> এখনই অর্ডার করুন
           </a>
         </div>
@@ -280,7 +291,7 @@ export default function Home() {
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4">ঝামেলা ছাড়াই ব্যাগ সোর্স করতে প্রস্তুত?</h2>
           <p className="text-blue-100 text-lg mb-8">২০ পিস দিয়ে শুরু করুন। কোনো কাগজপত্র নেই। চায়না থেকে সরাসরি।</p>
-          <a href={whatsappLink} className="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-12 rounded-xl text-xl transition-all shadow-lg">
+          <a href={defaultWhatsAppLink} className="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-12 rounded-xl text-xl transition-all shadow-lg">
             <FaWhatsapp className="inline-block mr-2" /> এখনই অর্ডার করুন
           </a>
           <p className="mt-4 text-blue-200 text-sm">অফিস টাইমে আমরা কয়েক মিনিটের মধ্যে উত্তর দিই।</p>
@@ -296,7 +307,7 @@ export default function Home() {
         </div>
       </footer>
 
-      <a href={whatsappLink} className="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all z-50">
+      <a href={defaultWhatsAppLink} className="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all z-50">
         <FaWhatsapp className="text-2xl" />
       </a>
     </div>
