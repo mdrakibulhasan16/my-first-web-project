@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDb } from '@/lib/db'
+import { getOrders, addOrder } from '@/lib/storage'
 
 export async function GET() {
   try {
-    const db = getDb()
-    const orders = db.prepare('SELECT * FROM orders ORDER BY created_at DESC').all()
+    const orders = await getOrders()
     return NextResponse.json(orders)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
@@ -20,12 +19,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Phone and WhatsApp are required' }, { status: 400 })
     }
 
-    const db = getDb()
-    const result = db.prepare(
-      'INSERT INTO orders (name, phone, whatsapp, message) VALUES (?, ?, ?, ?)'
-    ).run(name || '', phone, whatsapp, message || '')
+    const newOrder = await addOrder({
+      name: name || '',
+      phone,
+      whatsapp,
+      message: message || '',
+      status: 'pending',
+    })
 
-    return NextResponse.json({ id: result.lastInsertRowid, message: 'Order saved' }, { status: 201 })
+    return NextResponse.json(newOrder, { status: 201 })
   } catch (error) {
     return NextResponse.json({ error: 'Failed to save order' }, { status: 500 })
   }

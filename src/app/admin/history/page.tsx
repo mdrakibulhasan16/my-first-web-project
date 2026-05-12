@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { FaArrowLeft, FaWhatsapp, FaPhone, FaClock, FaSearch } from 'react-icons/fa'
-import { getOrders } from '@/lib/storage'
 
 interface Order {
   id: string
@@ -23,9 +22,11 @@ export default function OrderHistory() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const fetchOrders = () => {
+  const fetchOrders = async () => {
     try {
-      const data = getOrders()
+      const res = await fetch('/api/orders')
+      if (!res.ok) throw new Error('Failed to fetch')
+      const data = await res.json()
       if (Array.isArray(data)) {
         setOrders(data)
       } else {

@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDb } from '@/lib/db'
+import { getOrderById, updateOrder, deleteOrder } from '@/lib/storage'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const db = getDb()
-    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(params.id)
+    const order = await getOrderById(params.id)
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
@@ -23,14 +22,11 @@ export async function PATCH(
 ) {
   try {
     const body = await request.json()
-    const db = getDb()
-    const result = db.prepare(
-      'UPDATE orders SET status = ? WHERE id = ?'
-    ).run(body.status, params.id)
-    if (result.changes === 0) {
+    const updated = await updateOrder(params.id, body)
+    if (!updated) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
-    return NextResponse.json({ message: 'Order updated' })
+    return NextResponse.json(updated)
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
   }
@@ -41,9 +37,8 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const db = getDb()
-    const result = db.prepare('DELETE FROM orders WHERE id = ?').run(params.id)
-    if (result.changes === 0) {
+    const deleted = await deleteOrder(params.id)
+    if (!deleted) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
     return NextResponse.json({ message: 'Order deleted' })
